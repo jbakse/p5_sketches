@@ -3,6 +3,7 @@
 function setup() {
 	// create a place to draw
 	createCanvas(640, 360);
+	noLoop();
 }
 
 
@@ -16,5 +17,10 @@ function draw() {
 	strokeWeight(10);
 
 	// draw a circle
-	ellipse(10, 10, 100, 100);
+	ellipse(random(width), 180, 100, 100);
+	ellipse(10, 10, 10, 10);
+}
+
+function mouseClicked() {
+	save();
 }
