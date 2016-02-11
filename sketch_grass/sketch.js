@@ -1,4 +1,6 @@
 // assults your eyes
+var heightSlider;
+var leanSlider;
 
 var testImage;
 
@@ -13,6 +15,11 @@ function setup() {
 
 	// load up the pixel[] array so we can read colors out of it later
 	testImage.loadPixels();
+
+	heightSlider = createSlider(0, 500, 100);
+	leanSlider = createSlider(0, 500, 100);
+	heightSlider.changed(draw);
+	leanSlider.changed(draw);
 }
 
 
@@ -51,16 +58,18 @@ function grass(x, y) {
 
 	var bladeHeight = min(random(1, 20), random(1, 20), random(1, 20),
 		random(1, 20), random(1, 20), random(1, 20));
+	bladeHeight = bladeHeight * heightSlider.value() / 100.0;
 
 	var bladeLean = random(-1, 1);
+	bladeLean = bladeLean * leanSlider.value() / 100.0;
 	bladeLean *= bladeHeight;
 
-	line(x, y, x + bladeLean, y - 10);
+	line(x, y, x + bladeLean, y - bladeHeight);
 
 }
 
 // download the image
-function mouseReleased() {
-	console.log("save");
-	save();
-}
+// function mouseReleased() {
+// 	console.log("save");
+// 	save();
+// }
