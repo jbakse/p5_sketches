@@ -1,12 +1,17 @@
 var myTurtle;
 var frame = 0;
+var leafImage;
+
+function preload() {
+	leafImage = loadImage("assets/leaf_white.png");
+}
 
 function setup() {
 	// create a place to draw
 	createCanvas(640, 360);
 	myTurtle = new Turtle();
 	background(50);
-	colorMode(HSB, 255);
+
 	noLoop();
 }
 
@@ -15,38 +20,54 @@ function setup() {
 // relative vs absolute positions
 // angles
 // relative vs absolute angle leads to nice complex curves turnLeft(i) vs turnTo(i)
+// http://www.amazon.com/Nature-Code-Daniel-Shiffman-ebook/dp/B00BPFT8D4/
 
 function draw() {
 	// clear the background
 	// background(0, 0, 0);
 	noFill();
-	stroke(frameCount % 255, 255, 255);
+	stroke(0, 255, 0);
+	tint(0, 255, 0);
+
 
 	myTurtle.penUp();
-	myTurtle.moveTo(320, 360);
+	myTurtle.moveTo(320, 350);
 	myTurtle.penDown();
 	myTurtle.turnLeft(90);
-	drawBranch(100);
+
+
+
+	drawBranch(75);
+
 
 
 }
 
 function drawBranch(length) {
-	if (length < 10) {
+
+	if (length < 5) {
 		return;
 	}
+	console.log(length);
 
+	// this branch
 	myTurtle.moveForward(length);
 
+	// left child
 	myTurtle.pushState();
-	myTurtle.turnLeft(random(30, 60));
-	drawBranch(length * random(0.6, 0.8));
+	myTurtle.turnLeft(45);
+	drawBranch(length * 0.75);
 	myTurtle.popState();
 
+	// right child
 	myTurtle.pushState();
-	myTurtle.turnRight(random(30, 60));
-	drawBranch(length * random(0.6, 0.8));
+	myTurtle.turnRight(45);
+	drawBranch(length * 0.75);
 	myTurtle.popState();
+
+	if (length * 0.75 < 5) {
+		myTurtle.image(leafImage, 10, 10);
+	}
 
 }
 
@@ -65,11 +86,7 @@ function drawLeaf() {
 		myTurtle.turnLeft(18);
 	}
 
-
 	myTurtle.popState();
-
-
-
 }
 
 function interesting() {
@@ -97,7 +114,7 @@ function interesting() {
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Introduction_to_Object-Oriented_JavaScript
 //
 // The turtle's coordinate system uses pixels for distance and degrees for rotations
-// 0 degrees is straight right (east); positive degrees are counter-clockwise
+// 0 degrees is straight right (east); positive degrees are clockwise
 
 // Turtle constructor
 // takes optional x, y starting coordinates (default is center of sketch)
@@ -111,7 +128,7 @@ function Turtle(x, y) {
 	}
 	this.x = x;
 	this.y = y;
-	this.bearing = 0;
+	this.bearingRadians = 0;
 	this.isPenDown = true;
 	this._stateStack = [];
 }
@@ -127,8 +144,8 @@ Turtle.prototype.moveTo = function (newX, newY) {
 
 // moveForward moves the turtle along its current bearing, drawing a line if pen is down
 Turtle.prototype.moveForward = function (distance) {
-	var newX = this.x + cos(this.bearing) * distance;
-	var newY = this.y + sin(this.bearing) * distance;
+	var newX = this.x + cos(this.bearingRadians) * distance;
+	var newY = this.y + sin(this.bearingRadians) * distance;
 	this.moveTo(newX, newY);
 };
 
@@ -139,17 +156,17 @@ Turtle.prototype.moveBackward = function (distance) {
 
 // turnTo changes the turtle's bearing to the provided angle in degrees
 Turtle.prototype.turnTo = function (positionDegrees) {
-	this.bearing = radians(positionDegrees);
+	this.bearingRadians = radians(positionDegrees);
 };
 
 // turnRight rotates the turtle's bearing clockwise by the provided angle in degrees
 Turtle.prototype.turnRight = function (amountDegrees) {
-	this.bearing += radians(amountDegrees);
+	this.bearingRadians += radians(amountDegrees);
 };
 
-// turnRight rotates the turtle's bearing counter-clockwise by the provided angle in degrees
+// turnLeft rotates the turtle's bearing counter-clockwise by the provided angle in degrees
 Turtle.prototype.turnLeft = function (amountDegrees) {
-	this.bearing -= radians(amountDegrees);
+	this.bearingRadians -= radians(amountDegrees);
 };
 
 // penUp tells the turtle to move without drawing
@@ -167,7 +184,7 @@ Turtle.prototype.pushState = function () {
 	this._stateStack.push({
 		x: this.x,
 		y: this.y,
-		bearing: this.bearing,
+		bearingRadians: this.bearingRadians,
 		isPenDown: this.isPenDown
 	});
 };
@@ -183,6 +200,19 @@ Turtle.prototype.popState = function () {
 	var state = this._stateStack.pop();
 	this.x = state.x;
 	this.y = state.y;
-	this.bearing = state.bearing;
+	this.bearingRadians = state.bearingRadians;
 	this.isPenDown = state.isPenDown;
+};
+
+// image draws and image centered on the turtle's current location and alligned with the turtle's rotation
+Turtle.prototype.image = function (i, w, h) {
+	// w, h are optional parameters to this function and to p5's image
+	// p5's image function will draw the image at its "normal" size if w and h are undefined
+
+	push();
+	translate(this.x, this.y);
+	rotate(this.bearingRadians + PI * 0.5);
+	imageMode(CENTER);
+	image(i, 0, 0, w, h);
+	pop();
 };
