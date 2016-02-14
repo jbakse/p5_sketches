@@ -46,8 +46,8 @@ Turtle.prototype.moveBackward = function (distance) {
 };
 
 // turnTo changes the turtle's bearing to the provided angle in degrees
-Turtle.prototype.turnTo = function (positionDegrees) {
-  this.bearingRadians = radians(positionDegrees);
+Turtle.prototype.turnTo = function (angleDegrees) {
+  this.bearingRadians = radians(angleDegrees);
 };
 
 // turnRight rotates the turtle's bearing clockwise by the provided angle in degrees
