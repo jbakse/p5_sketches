@@ -1,25 +1,27 @@
 // just draws a circle
-var COLS = 50;
-var ROWS = 100;
-var WORMS = 100;
+var COLS = 100;
+var ROWS = 50;
+
 var COL_WIDTH = 10;
 var ROW_HEIGHT = 10;
 
 var grid = makeMultiArray(COLS, ROWS);
 var worms = [];
 
+var startImage;
 
-function saveIt(a, b, c) {
-	console.log(a, b, c);
+function preload() {
+	startImage = loadImage("images/compform.png");
 }
 
 function setup() {
 	// create a place to draw
-	createCanvas(500, 1000);
+	createCanvas(COLS * COL_WIDTH, ROWS * ROW_HEIGHT);
 	fill(255);
 	stroke(255);
 	background(0, 0, 0);
-
+	colorMode(HSB, 255);
+	strokeWeight(1);
 
 	//noLoop();
 
@@ -32,48 +34,76 @@ function setup() {
 		grid[COLS - 1][row] = "BLOCKED";
 	}
 
-	for (var i = 0; i < WORMS; i++) {
-		worms.push(new WireWorm(
-			new Point(
-				floor(random(1, COLS - 2)),
-				max(
-					floor(random(1, ROWS - 2)),
-					floor(random(1, ROWS - 2)),
-					floor(random(1, ROWS - 2))
-				)
-			)
-		));
 
-
+	// place singles
+	for (var i = 0; i < 10; i++) {
+		placeChip(randomInt(COLS), randomInt(ROWS), 1, 1);
 	}
 
-	for (row = 10; row < 20; row++) {
-		for (col = 10; col < 20; col++) {
+
+	// place chips
+	for (var chip = 0; chip < 20; chip++) {
+		var x = randomInt(1, COLS - 2);
+		var y = randomInt(1, ROWS - 2);
+		var w = randomInt(4, 10);
+		var h = randomInt(4, 10);
+		placeChip(x, y, w, h);
+	}
+
+	// placeFromImage();
+
+
+
+}
+
+function placeFromImage() {
+	startImage.loadPixels();
+	for (var y = 0; y < min(ROWS, startImage.height); y++) {
+		for (var x = 0; x < min(COLS, startImage.width); x++) {
+
+			var imageIndex = (y * startImage.width + x) * 4;
+
+			if (startImage.pixels[imageIndex] === 255) {
+				placeChip(x, y, 1, 1);
+			}
+		}
+	}
+}
+
+function placeChip(x, y, w, h) {
+	x = constrain(x, 1, COLS - 1);
+	y = constrain(y, 1, ROWS - 1);
+
+	if (x + w > COLS - 1) {
+		w = COLS - 1 - x;
+	}
+	if (y + h > ROWS - 1) {
+		h = ROWS - 1 - y;
+	}
+
+	for (row = y; row < y + h; row++) {
+		for (col = x; col < x + w; col++) {
+
 			worms.push(new WireWorm(
 				new Point(col, row)
 			));
+
 		}
 	}
-
-
-	for (row = 30; row < 35; row++) {
-		for (col = 20; col < 30; col++) {
-			worms.push(new WireWormDiagonal(
-				new Point(col, row)
-			));
-		}
-	}
-
 }
+
 
 function draw() {
 	// background(0, 0, 0);
 
+	var i, ii;
 
-
-	// for (var i = 0; i < 10000; i++) {
-	for (var w = 0; w < worms.length; w++) {
-		worms[w].step();
+	for (i = 0; i < 3; i++) {
+		for (var w = 0; w < worms.length; w++) {
+			for (ii = 0; ii < 1; ii++) {
+				worms[w].step();
+			}
+		}
 	}
 
 	// saveCanvas("output" + frameCount, "jpg");
@@ -96,12 +126,12 @@ function WireWorm(location) {
 	this.location = location;
 	this.direction = "N";
 	this.dead = false;
-
-	this.drawStart();
+	this.color = color(255);
 
 
 
 	grid[this.location.x][this.location.y] = "BLOCKED";
+	this.drawStart();
 }
 
 
@@ -155,6 +185,8 @@ WireWorm.prototype.pickEscapeDirection = function () {
 };
 
 WireWorm.prototype.drawStart = function () {
+	stroke(this.color);
+	fill(this.color);
 	ellipse(this.location.x * COL_WIDTH + COL_WIDTH * 0.5 + 0.5,
 		this.location.y * ROW_HEIGHT + ROW_HEIGHT * 0.5 + 0.5,
 		COL_WIDTH * 0.5,
@@ -162,13 +194,17 @@ WireWorm.prototype.drawStart = function () {
 };
 
 WireWorm.prototype.drawEnd = function () {
+	stroke(this.color);
+	fill(this.color);
 	ellipse(this.location.x * COL_WIDTH + COL_WIDTH * 0.5 + 0.5,
 		this.location.y * ROW_HEIGHT + ROW_HEIGHT * 0.5 + 0.5,
-		COL_WIDTH * 0.5,
-		COL_WIDTH * 0.5);
+		COL_WIDTH * 0.25,
+		COL_WIDTH * 0.25);
 };
 
 WireWorm.prototype.drawLine = function (nextLocation) {
+	stroke(this.color);
+	fill(this.color);
 	line(this.location.x * COL_WIDTH + COL_WIDTH * 0.5,
 		this.location.y * ROW_HEIGHT + ROW_HEIGHT * 0.5,
 		nextLocation.x * COL_WIDTH + COL_WIDTH * 0.5,
@@ -244,4 +280,16 @@ function makeMultiArray(columns, rows) {
 		a.push(new Array(rows));
 	}
 	return a;
+}
+
+
+function randomInt(min, max) {
+	if (min === undefined) {
+		return 0;
+	}
+	if (max === undefined) {
+		return floor(random(min));
+	}
+	return floor(random(min, max));
+
 }
