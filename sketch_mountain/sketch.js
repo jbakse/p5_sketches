@@ -53,10 +53,10 @@ function draw() {
 	background(skyHue, 50, 200);
 
 	// draw the layers back to front
-	for (l = 0; l < 24; l++) {
+	for (l = 0; l < 16; l++) {
 		var hueShift = (1 * (l % 2));
-		var saturation = (l / 24.0) * 255;
-		var brightness = 255 - (24 - l) * 5;
+		var saturation = (l / 16.0) * 255;
+		var brightness = 255 - (16 - l) * 5;
 
 		fill(primaryHue + hueShift, saturation, brightness);
 		stroke(255, 0, 255, 100); // transparent white
@@ -72,14 +72,14 @@ function populateMountains() {
 	for (i = 0; i < 3; i++) {
 		mountains[i] = {
 			x: random(32),
-			y: random(24),
+			y: random(16),
 			height: max(random(10), random(10))
 		};
 	}
 }
 
 function drawLayer(layer) {
-	var y = 480 - (24 - layer) * paralaxSlider.value();
+	var y = 480 - (16 - layer) * paralaxSlider.value();
 
 	beginShape();
 	vertex(0, 640);

@@ -17,12 +17,12 @@ var downloadButton;
 var primaryHue;
 var mountains = [];
 var clouds = [];
-
+var exporting = false;
 
 function setup() {
 	// create a place to draw
-	var cnv = createCanvas(640, 640);
-	cnv.parent("output");
+	var cnv = createCanvas(640, 640, SVG);
+	// cnv.parent("output");
 	colorMode(HSB, 255);
 	primaryHue = random(255);
 
@@ -38,8 +38,8 @@ function setup() {
 	paralaxSlider = makeSlider(0, 20, 5, "paralax");
 
 
-	mistLevelSlider = makeSlider(0, 200, 0, "mistLevel");
-	cloudLevelSlider = makeSlider(0, 200, 50, "cloudLevel");
+	mistLevelSlider = makeSlider(0, 200, 100, "mistLevel");
+	cloudLevelSlider = makeSlider(0, 200, 0, "cloudLevel");
 	cloudScaleSlider = makeSlider(0, 50, 10, "cloudScale");
 
 	rollMountainsButton = createButton("Roll Mountains");
@@ -49,7 +49,9 @@ function setup() {
 	rollMountainsButton.mousePressed(populateClouds);
 
 	downloadButton = createButton("Save Image");
-	downloadButton.mousePressed(function () {
+	downloadButton.mousePressed(function() {
+		exporting = true;
+		draw();
 		save();
 	});
 
@@ -68,17 +70,23 @@ function makeSlider(min, max, value, label) {
 function draw() {
 	// clear the background
 	var skyHue = (primaryHue + 128) % 255; // find complement color
-	background(skyHue, 50, 200);
+	// background(skyHue, 50, 200);
+	clear();
 
 	// draw the layers back to front
-	for (l = 0; l < 24; l++) {
+	for (l = 0; l < 16; l++) {
 		var hueShift = (4 * (l % 2));
-		var saturation = (l / 24.0) * 255;
-		var brightness = 255 - (24 - l) * 5 - (10 * (l % 5));
+		var saturation = (l / 16.0) * 255;
+		var brightness = 255 - (16 - l) * 5 - (10 * (l % 5));
 
 		fill(primaryHue + hueShift, saturation, brightness);
 		stroke(255, 0, 255, 0); // transparent white
-		drawLayer(l);
+
+		var y = 480 - (16 - l) * paralaxSlider.value();
+		if (exporting) {
+			y = 800 * l;
+		}
+		drawLayer(l, y);
 	}
 
 }
@@ -90,13 +98,13 @@ function populateMountains() {
 
 	mountains[0] = {
 		x: random(8, 24),
-		y: random(10, 14),
+		y: random(0, 16),
 		height: 10
 	};
 
 	mountains[1] = {
 		x: random(0, 32),
-		y: random(0, 24),
+		y: random(0, 16),
 		height: 5
 	};
 
@@ -107,28 +115,28 @@ function populateClouds() {
 
 	clouds[0] = {
 		x: random(0, 32),
-		y: random(0, 24),
+		y: random(0, 16),
 		height: 8
 	};
 
 	clouds[1] = {
 		x: random(0, 32),
-		y: random(0, 24),
+		y: random(0, 16),
 		height: 8
 	};
 
 	clouds[2] = {
 		x: random(0, 32),
-		y: random(0, 24),
+		y: random(0, 16),
 		height: 4
 	};
 }
 
-function drawLayer(layer) {
-	var y = 480 - (24 - layer) * paralaxSlider.value();
+function drawLayer(layer, y) {
+
 
 	beginShape();
-	vertex(0, 640);
+	vertex(0, y);
 	for (col = 0; col <= 32; col++) {
 		var x = col * 20;
 
@@ -153,12 +161,20 @@ function drawLayer(layer) {
 		ellipse(x, y - cloudHeight,
 			sampleCloudNoise(col, layer) * 0.5 + 30,
 			sampleCloudNoise(col, layer) * 0.5 + 30);
+
+
+		//mist
+		ellipse(x, y - mistLevelSlider.value(),
+			30 + sampleCloudNoise(col, layer),
+			30 + sampleCloudNoise(col, layer));
+
+
 		// snap to grid
 		// height = floor(height / 40) * 40;
 
 		vertex(x, y - height);
 	}
-	vertex(640, 640);
+	vertex(640, y);
 	endShape(CLOSE);
 }
 

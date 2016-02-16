@@ -42,9 +42,9 @@ function draw() {
 			//////////////////
 			/// Demo 1: swap channels
 
-			// redOut = blueIn;
-			// blueOut = greenIn;
-			// greenOut = redIn;
+			redOut = blueIn;
+			blueOut = greenIn;
+			greenOut = redIn;
 
 
 			//////////////////
@@ -54,18 +54,18 @@ function draw() {
 			// sample a pixel we've already changed, it would be better
 			// to read from one image and write out to a different one
 
-			// choose random position for the sample
-			var x2 = x + floor(random(-50, 51));
-			var y2 = y + floor(random(-50, 51));
-
-			// make sure we don't go outside the image
-			x2 = clamp(x2, 0, 2047);
-			y2 = clamp(y2, 0, 2047);
-
-			// use the color from the random position
-			redOut = testImage.pixels[(y2 * 2048 + x2) * 4 + 0];
-			greenOut = testImage.pixels[(y2 * 2048 + x2) * 4 + 1];
-			blueOut = testImage.pixels[(y2 * 2048 + x2) * 4 + 2];
+			// // choose random position for the sample
+			// var x2 = x + floor(random(-50, 51));
+			// var y2 = y + floor(random(-50, 51));
+			//
+			// // make sure we don't go outside the image
+			// x2 = clamp(x2, 0, 2047);
+			// y2 = clamp(y2, 0, 2047);
+			//
+			// // use the color from the random position
+			// redOut = testImage.pixels[(y2 * 2048 + x2) * 4 + 0];
+			// greenOut = testImage.pixels[(y2 * 2048 + x2) * 4 + 1];
+			// blueOut = testImage.pixels[(y2 * 2048 + x2) * 4 + 2];
 
 
 			testImage.pixels[(y * 2048 + x) * 4 + 0] = redOut;

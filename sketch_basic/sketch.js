@@ -10,11 +10,4 @@ function draw() {
 	// clear the background
 	background(0, 0, 0);
 
-	// set drawing styles
-	stroke(255, 0, 0);
-	fill(255, 255, 255);
-	strokeWeight(10);
-
-	// draw a circle
-	ellipse(10, 10, 100, 100);
 }
