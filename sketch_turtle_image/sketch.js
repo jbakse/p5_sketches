@@ -29,9 +29,12 @@ function draw() {
 		for (var ii = 0; ii < 20; ii++) {
 			myTurtle.moveForward(20);
 			myTurtle.turnLeft(5);
+			// myTurtle.image(leafImage, 10, 10);
 		}
 
 		myTurtle.turnRight(170);
 		myTurtle.image(leafImage, 10, 10);
 	}
+
+
 }

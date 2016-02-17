@@ -1,12 +1,3 @@
-function makeMultiArray(columns, rows) {
-    var a = [];
-    for (var col = 0; col < columns; col++) {
-        a.push(new Array(rows));
-    }
-    return a;
-}
-
-
 function getAdjacentCell(location, direction) {
     if (direction === "N") {
         return new Point(location.x, location.y - 1);
