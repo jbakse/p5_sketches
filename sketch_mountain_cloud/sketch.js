@@ -55,6 +55,7 @@ function setup() {
 		save();
 	});
 
+
 }
 
 function makeSlider(min, max, value, label) {
@@ -68,25 +69,35 @@ function makeSlider(min, max, value, label) {
 
 
 function draw() {
+
 	// clear the background
 	var skyHue = (primaryHue + 128) % 255; // find complement color
 	// background(skyHue, 50, 200);
 	clear();
 
+
 	// draw the layers back to front
-	for (l = 0; l < 16; l++) {
+	for (l = 0; l < 30; l++) {
 		var hueShift = (4 * (l % 2));
-		var saturation = (l / 16.0) * 255;
-		var brightness = 255 - (16 - l) * 5 - (10 * (l % 5));
+		var saturation = (l / 32.0) * 255;
+		var brightness = 255 - (32 - l) * 2 - (10 * (l % 5));
 
 		fill(primaryHue + hueShift, saturation, brightness);
 		stroke(255, 0, 255, 0); // transparent white
 
-		var y = 480 - (16 - l) * paralaxSlider.value();
+		var y = 480 - (32 - l) * paralaxSlider.value();
 		if (exporting) {
-			y = 800 * l;
+
+			push();
+			scale(72 / 80, 72 / 80);
+			y = 0;
+			translate(floor(l / 8) * 400, l % 8 * 400);
+			drawLayer(l, y);
+			pop();
+		} else {
+
+			drawLayer(l, y);
 		}
-		drawLayer(l, y);
 	}
 
 }
@@ -97,14 +108,14 @@ function populateMountains() {
 	mountains = [];
 
 	mountains[0] = {
-		x: random(8, 24),
-		y: random(0, 16),
+		x: 15 + random(-4, 4),
+		y: 15 + random(-4, 4),
 		height: 10
 	};
 
 	mountains[1] = {
-		x: random(0, 32),
-		y: random(0, 16),
+		x: 15 + random(-4, 4),
+		y: 15 + random(-4, 4),
 		height: 5
 	};
 
@@ -137,8 +148,8 @@ function drawLayer(layer, y) {
 
 	beginShape();
 	vertex(0, y);
-	for (col = 0; col <= 32; col++) {
-		var x = col * 20;
+	for (col = 0; col <= 30; col++) {
+		var x = col * 10;
 
 		// start with no height then add in height contributions from noise and mountains
 		var mountainHeight = 0;
@@ -147,34 +158,56 @@ function drawLayer(layer, y) {
 			mountainHeight += sampleMountain(col, layer, mountains[i]);
 		}
 
-		var cloudHeight = 0;
-		cloudHeight += cloudLevelSlider.value();
-		cloudHeight += sampleCloudNoise(col, layer);
-		for (i = 0; i < clouds.length; i++) {
-			cloudHeight += sampleCloud(col, layer, clouds[i]);
+		var nextMountainHeight = 0;
+		nextMountainHeight += sampleNoise(col + 1, layer);
+		for (i = 0; i < mountains.length; i++) {
+			nextMountainHeight += sampleMountain(col + 1, layer, mountains[i]);
 		}
 
-
-		var height = max(mountainHeight, cloudHeight, mistLevelSlider.value());
-
-
-		ellipse(x, y - cloudHeight,
-			sampleCloudNoise(col, layer) * 0.5 + 30,
-			sampleCloudNoise(col, layer) * 0.5 + 30);
-
-
-		//mist
-		ellipse(x, y - mistLevelSlider.value(),
-			30 + sampleCloudNoise(col, layer),
-			30 + sampleCloudNoise(col, layer));
+		// var cloudHeight = 0;
+		// cloudHeight += cloudLevelSlider.value();
+		// cloudHeight += sampleCloudNoise(col, layer);
+		// for (i = 0; i < clouds.length; i++) {
+		// 	cloudHeight += sampleCloud(col, layer, clouds[i]);
+		// }
+		//
+		//
+		// var height = max(mountainHeight, cloudHeight, mistLevelSlider.value());
+		//
+		//
+		// ellipse(x, y - cloudHeight,
+		// 	sampleCloudNoise(col, layer) * 0.5 + 30,
+		// 	sampleCloudNoise(col, layer) * 0.5 + 30);
+		//
+		//
+		// //mist
+		// ellipse(x, y - mistLevelSlider.value(),
+		// 	30 + sampleCloudNoise(col, layer),
+		// 	30 + sampleCloudNoise(col, layer));
 
 
 		// snap to grid
 		// height = floor(height / 40) * 40;
 
-		vertex(x, y - height);
+		vertex(x, y - mountainHeight);
+		if (col < 30) {
+			if (mountainHeight < mistLevelSlider.value()) {
+				if (random() > 0.8) {
+					drawSpruceTree(x, y - min(mountainHeight, nextMountainHeight));
+				}
+			} else if (mountainHeight < mistLevelSlider.value() + 20) {
+				if (random() > 0.2) {
+					drawSpruceTree(x, y - min(mountainHeight, nextMountainHeight));
+				}
+			}
+		}
 	}
-	vertex(640, y);
+	vertex(300, y);
+	rect(0, y - 5, 10, 10);
+	rect(20, y - 5, 260, 10);
+	rect(290, y - 5, 10, 10);
+
+	rect(20 + layer * 5, y + 5, 10, 10);
 	endShape(CLOSE);
 }
 
@@ -214,4 +247,27 @@ function sampleCloudNoise(x, y) {
 	sample = sample * cloudNoiseScaleSlider.value();
 	return sample;
 
+}
+
+
+
+function drawSpruceTree(x, y) {
+	// drawGrass(x, y, tile_value, ground_height, next_ground_height);
+
+	push();
+
+	// translate(random(-4, 4), 0);
+	var height = min(random(1, 4), random(1, 4));
+	height = height * 5;
+	rect(x + 3, y - height - 1, 4, height + 1); // trunk
+	triangle(x, y - height, x + 5, y - height - 10, x + 10, y - height); // bottom branch
+	triangle(x, y - height - 5, x + 5, y - height - 15, x + 10, y - height - 5); // middle branch
+	if (random() > 0.5) {
+		triangle(x, y - height - 10, x + 5, y - height - 20, x + 10, y - height - 10); // top
+		if (random() > 0.5) {
+			triangle(x, y - height - 15, x + 5, y - height - 25, x + 10, y - height - 15); // top
+		}
+	}
+
+	pop();
 }
