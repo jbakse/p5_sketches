@@ -1,13 +1,13 @@
 function buildBoard() {
-    wires = [];
+  wires = [];
 
-    var chipsetCount = min(randomInt(2, 8), randomInt(2, 8));
-    for (var c = 0; c < chipsetCount; c++) {
-        placeChipSet();
-    }
+  var chipsetCount = min(randomInt(2, COLS / 4), randomInt(2, COLS / 4));
+  for (var c = 0; c < chipsetCount; c++) {
+    placeChipSet();
+  }
 
 
-    placeSingles();
+  placeSingles();
 
 
 
@@ -15,170 +15,171 @@ function buildBoard() {
 
 function placeSingles() {
 
-    var wireWeights = [{
-        weight: 1,
-        value: primaryWire
-    }, {
-        weight: 1,
-        value: secondaryWire
-    }, {
-        weight: 0,
-        value: blockWire
-    }, {
-        weight: 0,
-        value: null
-    }];
+  var wireWeights = [{
+    weight: 1,
+    value: primaryWire
+  }, {
+    weight: 1,
+    value: secondaryWire
+  }, {
+    weight: 0,
+    value: blockWire
+  }, {
+    weight: 0,
+    value: null
+  }];
 
-    var countWeights = [{
-        weight: 1,
-        value: 0
-    }, {
-        weight: 1,
-        value: 5
-    }, {
-        weight: 1,
-        value: 50
-    }];
+  var countWeights = [{
+    weight: 1,
+    value: 0
+  }, {
+    weight: 1,
+    value: 5
+  }, {
+    weight: 1,
+    value: 50
+  }];
 
-    var singlesCount = weightedRoll(countWeights);
-    for (var c = 0; c < singlesCount; c++) {
-        placeWire(randomInt(COLS), randomInt(ROWS), weightedRoll(wireWeights));
-    }
+  var singlesCount = weightedRoll(countWeights);
+  for (var c = 0; c < singlesCount; c++) {
+    placeWire(randomInt(COLS), randomInt(ROWS), weightedRoll(wireWeights));
+  }
 }
 
 function placeChipSet() {
-    var w = max(randomInt(1, 8), randomInt(1, 8)) * 2;
-    var h = max(randomInt(1, 8), randomInt(1, 8)) * 2;
-    var chip = designChip(w, h);
-    var x = randomInt(COLS);
-    var y = randomInt(ROWS);
-    var chipCount = randomInt(1, 4);
-    var spacing = randomInt(4, 8);
+  var w = max(randomInt(1, 8), randomInt(1, 8)) * 2;
+  var h = max(randomInt(1, 8), randomInt(1, 8)) * 2;
+  var chip = designChip(w, h);
+  var x = randomInt(COLS);
+  var y = randomInt(ROWS);
+  var chipCount = randomInt(1, 4);
+  var spacing = randomInt(4, 8);
 
-    for (var c = 0; c < chipCount; c++) {
-        placeChip(chip, x, y);
-        if (random() > 0.5) {
-            x += chip.w + spacing;
-        } else {
-            y += chip.h + spacing;
-        }
+  for (var c = 0; c < chipCount; c++) {
+    placeChip(chip, x, y);
+    if (random() > 0.5) {
+      x += chip.w + spacing;
     }
+    else {
+      y += chip.h + spacing;
+    }
+  }
 
 }
 
 function designChip(w, h) {
-    var pins = makeMultiArray(w, h);
+  var pins = makeMultiArray(w, h);
 
-    var x, y;
+  var x, y;
 
-    var borderWeights = [{
-        weight: 4,
-        value: primaryWire
-    }, {
-        weight: 1,
-        value: secondaryWire
-    }, {
-        weight: 0,
-        value: blockWire
-    }, {
-        weight: 0,
-        value: null
-    }];
+  var borderWeights = [{
+    weight: 4,
+    value: primaryWire
+  }, {
+    weight: 1,
+    value: secondaryWire
+  }, {
+    weight: 0,
+    value: blockWire
+  }, {
+    weight: 0,
+    value: null
+  }];
 
 
-    var fillWeights = [{
-        weight: 0,
-        value: primaryWire
-    }, {
-        weight: 0,
-        value: secondaryWire
-    }, {
-        weight: 1,
-        value: blockWire
-    }, {
-        weight: 1,
-        value: null
-    }];
+  var fillWeights = [{
+    weight: 0,
+    value: primaryWire
+  }, {
+    weight: 0,
+    value: secondaryWire
+  }, {
+    weight: 1,
+    value: blockWire
+  }, {
+    weight: 1,
+    value: null
+  }];
 
-    var currentWire = weightedRoll(borderWeights);
+  var currentWire = weightedRoll(borderWeights);
 
-    // top
-    for (x = 0; x < w; x++) {
-        pins[x][0] = currentWire;
-        if (random() > 0.8) {
-            currentWire = weightedRoll(borderWeights);
-        }
+  // top
+  for (x = 0; x < w; x++) {
+    pins[x][0] = currentWire;
+    if (random() > 0.8) {
+      currentWire = weightedRoll(borderWeights);
     }
+  }
 
-    // right
-    for (y = 0; y < h; y++) {
-        // console.log(pins, w, y);
-        pins[w - 1][y] = currentWire;
-        if (random() > 0.8) {
-            currentWire = weightedRoll(borderWeights);
-        }
+  // right
+  for (y = 0; y < h; y++) {
+    // console.log(pins, w, y);
+    pins[w - 1][y] = currentWire;
+    if (random() > 0.8) {
+      currentWire = weightedRoll(borderWeights);
     }
+  }
 
-    // bottom
-    for (x = 0; x < w; x++) {
-        pins[x][h - 1] = currentWire;
-        if (random() > 0.8) {
-            currentWire = weightedRoll(borderWeights);
-        }
+  // bottom
+  for (x = 0; x < w; x++) {
+    pins[x][h - 1] = currentWire;
+    if (random() > 0.8) {
+      currentWire = weightedRoll(borderWeights);
     }
+  }
 
-    // left
-    for (y = 0; y < h; y++) {
-        pins[0][y] = currentWire;
-        if (random() > 0.8) {
-            currentWire = weightedRoll(borderWeights);
-        }
+  // left
+  for (y = 0; y < h; y++) {
+    pins[0][y] = currentWire;
+    if (random() > 0.8) {
+      currentWire = weightedRoll(borderWeights);
     }
+  }
 
-    // fill
-    for (y = 1; y < h - 1; y++) {
-        for (x = 1; x < w - 1; x++) {
-            pins[x][y] = weightedRoll(fillWeights);
-        }
+  // fill
+  for (y = 1; y < h - 1; y++) {
+    for (x = 1; x < w - 1; x++) {
+      pins[x][y] = weightedRoll(fillWeights);
     }
+  }
 
 
 
-    return {
-        w: w,
-        h: h,
-        pins: pins
-    };
+  return {
+    w: w,
+    h: h,
+    pins: pins
+  };
 }
 
 
 
 function placeChip(chip, chipX, chipY) {
-    var x, y;
-    for (y = 0; y < chip.h; y++) {
-        for (x = 0; x < chip.w; x++) {
-            var action = chip.pins[x][y];
-            if (action instanceof Wire) {
-                placeWire(x + chipX, y + chipY, action);
-            }
-        }
+  var x, y;
+  for (y = 0; y < chip.h; y++) {
+    for (x = 0; x < chip.w; x++) {
+      var action = chip.pins[x][y];
+      if (action instanceof Wire) {
+        placeWire(x + chipX, y + chipY, action);
+      }
     }
+  }
 }
 
 
 
 function placeWire(x, y, wireType) {
-    x2 = constrain(x, 1, COLS - 2);
-    y2 = constrain(y, 1, ROWS - 2);
-    if (x2 != x || y2 != y) {
-        return;
-    }
+  x2 = constrain(x, 1, COLS - 2);
+  y2 = constrain(y, 1, ROWS - 2);
+  if (x2 != x || y2 != y) {
+    return;
+  }
 
 
-    var newWire = Object.create(wireType);
-    newWire.location = new Point(x, y);
-    newWire.init();
-    wires.push(newWire);
+  var newWire = Object.create(wireType);
+  newWire.location = new Point(x, y);
+  newWire.init();
+  wires.push(newWire);
 
 
 }
