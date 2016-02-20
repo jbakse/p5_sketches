@@ -1,23 +1,41 @@
 var GRAVITY = 1;
 
 var player = new Player();
+var setter = new Player();
 
 var grid;
+
+var JUMP_POWER = 18;
+var WALK_SPEED = 6;
 
 function setup() {
 	// create a place to draw
 	createCanvas(640, 640);
 
 	grid = [];
-	var i
+	var i;
+
 	for (i = 0; i < 20; i++) {
 		grid[i] = [];
 	}
 
 	grid[3][17] = true;
-	for (i = 0; i < 20; i++) {
-		grid[floor(random(20))][floor(random(20))] = true;
-	}
+	// for (i = 0; i < 20; i++) {
+	// 	grid[floor(random(20))][floor(random(20))] = true;
+	// }
+
+	setter.startRight();
+	setter.onMovingTo = function () {
+		if (this.nextGridLoc.y > this.gridLoc.y) {
+			if (random() < 0.1) {
+				grid[this.nextGridLoc.x][this.nextGridLoc.y] = true;
+			}
+		}
+		if (this.nextGridLoc.y > this.gridLoc.y && this.grounded) {
+			grid[this.nextGridLoc.x][this.nextGridLoc.y] = true;
+		}
+
+	};
 }
 
 
@@ -29,12 +47,28 @@ function draw() {
 	player.step();
 	player.draw();
 
+	setter.step();
+	setter.draw();
+	if (setter.gridLoc.x === 0) {
+		setter.endLeft();
+		setter.startRight();
+	}
+	if (setter.gridLoc.x === 19) {
+		setter.endRight();
+		setter.startLeft();
+	}
+	if (setter.grounded && random() < 0.1) {
+		setter.jump();
+	}
+
+
+
 	push();
 	fill(255, 0, 0, 150);
 	noStroke();
-	var gridX = floor(player.loc.x / 32);
-	var gridY = floor(player.loc.y / 32);
-	rect(gridX * 32, (gridY + 1) * 32, 32, 32);
+
+
+	rect(player.gridLoc.x * 32, player.gridLoc.y * 32, 32, 32);
 
 	for (var y = 0; y < 20; y++) {
 		for (var x = 0; x < 20; x++) {
@@ -45,13 +79,15 @@ function draw() {
 	}
 
 	pop();
-
-
-
 }
+
 
 function Player() {
 	this.loc = new Point(320, 320);
+	this.gridLoc = new Point(
+		Math.floor(this.loc.x / 32),
+		Math.floor(this.loc.x / 32)
+	);
 	this.speed = new Point(0, 0);
 	this.grounded = false;
 }
@@ -61,53 +97,82 @@ function Player() {
 Player.prototype.step = function () {
 	// integrate
 	this.speed.y += GRAVITY;
-	this.loc.y += player.speed.y;
-	this.loc.x += player.speed.x;
+	this.loc.y += this.speed.y;
+	this.loc.x += this.speed.x;
 
-	// grid
-	this.grounded = false;
+
+	/////////////////////////////////////////////////
+	/// COLLISIONS
+
+	this.nextGrounded = false;
+
+	// collide floor
+	if (this.loc.y + 16 > height) {
+		this.speed.y = 0;
+		this.loc.y = height - 1;
+		this.nextGrounded = true;
+	}
 
 	this.collideGrid();
 
-	// floor
-	if (this.loc.y + 16 > height) {
-		this.speed.y = 0;
-		this.loc.y = height - 16;
-		this.grounded = true;
+	if (!this.grounded && this.nextGrounded) {
+		console.log("Ground On");
 	}
+	if (this.grounded && !this.nextGrounded) {
+		console.log("Ground Off");
+	}
+	if (!this.gridLoc.equals(this.nextGridLoc)) {
+		console.log("Moved To", this.nextGridLoc);
+	}
+
+	this.grounded = this.nextGrounded;
+	this.gridLoc = this.nextGridLoc;
+
 };
 
 
 Player.prototype.collideGrid = function () {
-	var gridX = floor(this.loc.x / 32);
-	var gridY = floor(this.loc.y / 32);
-	if (grid[gridX][gridY + 1] === true &&
-		this.loc.y + 16 > gridY * 32 &&
-		this.speed.y > 0) {
+	this.nextGridLoc = new Point(
+		floor(this.loc.x / 32),
+		floor(this.loc.y / 32)
+	);
 
-		this.speed.y = 0;
-		this.loc.y = gridY * 32 + 16;
-		this.grounded = true;
+	if (!this.gridLoc.equals(this.nextGridLoc)) {
+		console.log("Moving To", this.nextGridLoc);
+		this.onMovingTo(this);
+	}
+
+
+	if (
+		this.nextGridLoc.y > this.gridLoc.y && // moving down
+		grid[this.nextGridLoc.x][this.nextGridLoc.y] === true // moving into a blocked space
+	) {
+		this.speed.y = 0; // stop moving down
+		this.loc.y = this.nextGridLoc.y * 32; // constrain to (bottom of open)(top of blocked) boundry
+		this.nextGridLoc.y -= 1; // we are at the bottom of the open square
+		this.nextGrounded = true;
 	}
 };
+
+Player.prototype.onMovingTo = function (player) {};
 
 Player.prototype.draw = function () {
 	// ellipseMode(CORNER);
 	push();
 	fill(255);
 	noStroke();
-	ellipse(this.loc.x, this.loc.y, 32, 32);
+	ellipse(this.loc.x, this.loc.y - 16, 32, 32);
 	pop();
 };
 
 Player.prototype.jump = function () {
 	if (this.grounded) {
-		this.speed.y = -18;
+		this.speed.y = -JUMP_POWER;
 	}
 };
 
 Player.prototype.startLeft = function () {
-	this.speed.x = -6;
+	this.speed.x = -WALK_SPEED;
 };
 
 Player.prototype.endLeft = function () {
@@ -117,7 +182,7 @@ Player.prototype.endLeft = function () {
 };
 
 Player.prototype.startRight = function () {
-	this.speed.x = 6;
+	this.speed.x = WALK_SPEED;
 };
 
 Player.prototype.endRight = function () {
@@ -155,3 +220,7 @@ function Point(x, y) {
 	this.x = x;
 	this.y = y;
 }
+
+Point.prototype.equals = function (p) {
+	return (this.x === p.x && this.y === p.y);
+};
