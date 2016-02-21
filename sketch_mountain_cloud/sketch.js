@@ -49,7 +49,7 @@ function setup() {
 	rollMountainsButton.mousePressed(populateClouds);
 
 	downloadButton = createButton("Save Image");
-	downloadButton.mousePressed(function() {
+	downloadButton.mousePressed(function () {
 		exporting = true;
 		draw();
 		save();
@@ -70,12 +70,13 @@ function makeSlider(min, max, value, label) {
 
 function draw() {
 
+
 	// clear the background
 	var skyHue = (primaryHue + 128) % 255; // find complement color
 	// background(skyHue, 50, 200);
 	clear();
-
-
+	ellipse(320, 320, 320, 320);
+	return;
 	// draw the layers back to front
 	for (l = 0; l < 30; l++) {
 		var hueShift = (4 * (l % 2));
@@ -94,7 +95,8 @@ function draw() {
 			translate(floor(l / 8) * 400, l % 8 * 400);
 			drawLayer(l, y);
 			pop();
-		} else {
+		}
+		else {
 
 			drawLayer(l, y);
 		}
@@ -195,7 +197,8 @@ function drawLayer(layer, y) {
 				if (random() > 0.8) {
 					drawSpruceTree(x, y - min(mountainHeight, nextMountainHeight));
 				}
-			} else if (mountainHeight < mistLevelSlider.value() + 20) {
+			}
+			else if (mountainHeight < mistLevelSlider.value() + 20) {
 				if (random() > 0.2) {
 					drawSpruceTree(x, y - min(mountainHeight, nextMountainHeight));
 				}
