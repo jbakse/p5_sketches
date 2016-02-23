@@ -8,6 +8,10 @@ var grid;
 var JUMP_POWER = 18;
 var WALK_SPEED = 6;
 
+function mouseReleased() {
+	noLoop();
+}
+
 function setup() {
 	// create a place to draw
 	createCanvas(640, 640);
@@ -25,17 +29,9 @@ function setup() {
 	// }
 
 	setter.startRight();
-	setter.onMovingTo = function () {
-		if (this.nextGridLoc.y > this.gridLoc.y) {
-			if (random() < 0.1) {
-				grid[this.nextGridLoc.x][this.nextGridLoc.y] = true;
-			}
-		}
-		if (this.nextGridLoc.y > this.gridLoc.y && this.grounded) {
-			grid[this.nextGridLoc.x][this.nextGridLoc.y] = true;
-		}
+	setter.bar = 19;
+	setter.steps = 0;
 
-	};
 }
 
 
@@ -49,6 +45,29 @@ function draw() {
 
 	setter.step();
 	setter.draw();
+
+	setter.onMovingTo = function() {
+		if (this.grounded) {
+			this.steps++;
+		}
+
+		if (this.nextGridLoc.y >= this.gridLoc.y && !this.grounded) {
+			if (random() > 0.5) {
+				grid[this.nextGridLoc.x][this.nextGridLoc.y] = true;
+				this.bar = this.nextGridLoc.y;
+			}
+		}
+
+
+		if (this.nextGridLoc.y >= this.bar) {
+			grid[this.nextGridLoc.x][this.nextGridLoc.y] = true;
+			this.bar = this.nextGridLoc.y;
+		}
+		if (this.nextGridLoc.y > this.gridLoc.y && this.grounded) {
+			grid[this.nextGridLoc.x][this.nextGridLoc.y] = true;
+		}
+
+	};
 	if (setter.gridLoc.x === 0) {
 		setter.endLeft();
 		setter.startRight();
@@ -57,7 +76,9 @@ function draw() {
 		setter.endRight();
 		setter.startLeft();
 	}
-	if (setter.grounded && random() < 0.1) {
+	// console.log(setter.steps);
+	if (setter.grounded && setter.steps > 5) {
+		setter.steps = 0;
 		setter.jump();
 	}
 
@@ -83,7 +104,7 @@ function draw() {
 
 
 function Player() {
-	this.loc = new Point(320, 320);
+	this.loc = new Point(320, 600);
 	this.gridLoc = new Point(
 		Math.floor(this.loc.x / 32),
 		Math.floor(this.loc.x / 32)
@@ -94,7 +115,7 @@ function Player() {
 
 
 
-Player.prototype.step = function () {
+Player.prototype.step = function() {
 	// integrate
 	this.speed.y += GRAVITY;
 	this.loc.y += this.speed.y;
@@ -116,13 +137,13 @@ Player.prototype.step = function () {
 	this.collideGrid();
 
 	if (!this.grounded && this.nextGrounded) {
-		console.log("Ground On");
+		// console.log("Ground On");
 	}
 	if (this.grounded && !this.nextGrounded) {
-		console.log("Ground Off");
+		// console.log("Ground Off");
 	}
 	if (!this.gridLoc.equals(this.nextGridLoc)) {
-		console.log("Moved To", this.nextGridLoc);
+		// console.log("Moved To", this.nextGridLoc);
 	}
 
 	this.grounded = this.nextGrounded;
@@ -131,15 +152,16 @@ Player.prototype.step = function () {
 };
 
 
-Player.prototype.collideGrid = function () {
+Player.prototype.collideGrid = function() {
 	this.nextGridLoc = new Point(
 		floor(this.loc.x / 32),
 		floor(this.loc.y / 32)
 	);
 
 	if (!this.gridLoc.equals(this.nextGridLoc)) {
-		console.log("Moving To", this.nextGridLoc);
-		this.onMovingTo(this);
+		// console.log("Moving To", this.nextGridLoc);
+		// console.log(this.gridLoc, this.nextGridLoc);
+		this.onMovingTo();
 	}
 
 
@@ -154,9 +176,9 @@ Player.prototype.collideGrid = function () {
 	}
 };
 
-Player.prototype.onMovingTo = function (player) {};
+Player.prototype.onMovingTo = function(player) {};
 
-Player.prototype.draw = function () {
+Player.prototype.draw = function() {
 	// ellipseMode(CORNER);
 	push();
 	fill(255);
@@ -165,52 +187,52 @@ Player.prototype.draw = function () {
 	pop();
 };
 
-Player.prototype.jump = function () {
+Player.prototype.jump = function() {
 	if (this.grounded) {
 		this.speed.y = -JUMP_POWER;
 	}
 };
 
-Player.prototype.startLeft = function () {
+Player.prototype.startLeft = function() {
 	this.speed.x = -WALK_SPEED;
 };
 
-Player.prototype.endLeft = function () {
+Player.prototype.endLeft = function() {
 	if (this.speed.x < 0) {
 		this.speed.x = 0;
 	}
 };
 
-Player.prototype.startRight = function () {
+Player.prototype.startRight = function() {
 	this.speed.x = WALK_SPEED;
 };
 
-Player.prototype.endRight = function () {
+Player.prototype.endRight = function() {
 	if (this.speed.x > 0) {
 		this.speed.x = 0;
 	}
 };
 
 
-keyboardJS.bind('space', function (e) {
+keyboardJS.bind('z', function(e) {
 	e.preventRepeat();
 	player.jump();
-}, function (e) {});
+}, function(e) {});
 
-keyboardJS.bind(['left', 'a'], function (e) {
+keyboardJS.bind(['left', 'a'], function(e) {
 		e.preventRepeat();
 		player.startLeft();
 	},
-	function (e) {
+	function(e) {
 		player.endLeft();
 	}
 );
 
-keyboardJS.bind(['right', 'd'], function (e) {
+keyboardJS.bind(['right', 'd'], function(e) {
 		e.preventRepeat();
 		player.startRight();
 	},
-	function (e) {
+	function(e) {
 		player.endRight();
 	}
 );
@@ -221,6 +243,6 @@ function Point(x, y) {
 	this.y = y;
 }
 
-Point.prototype.equals = function (p) {
+Point.prototype.equals = function(p) {
 	return (this.x === p.x && this.y === p.y);
 };
