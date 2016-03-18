@@ -1,3 +1,5 @@
+var GRID_SIZE = 32;
+
 var grid;
 var player;
 var cameraY = 0;
@@ -26,9 +28,9 @@ function draw() {
 	player.step();
 
 
-	translate(0, height * 0.5);
 	cameraY = lerp(cameraY, player.loc.y, 0.1);
 	translate(0, cameraY);
+	translate(0, height * 0.5);
 	player.draw();
 	drawGridDebug();
 
@@ -44,14 +46,14 @@ function drawGridDebug() {
 	for (var y = 0; y < 20; y++) {
 		for (var x = 0; x < 20; x++) {
 			if (grid[x][y] === true) {
-				rect(x * 32, y * -32, 32, 32);
+				rect(x * 32, y * -32, 32, -32);
 			}
 		}
 	}
 
 	// show location of player
 	fill(0, 0, 255, 100);
-	rect(player.gridLoc.x * 32, -player.gridLoc.y * 32 - 32, 32, 32);
+	rect(player.gridLoc.x * 32, -player.gridLoc.y * 32, 32, -32);
 
 	pop();
 }
