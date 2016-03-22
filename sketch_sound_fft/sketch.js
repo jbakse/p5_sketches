@@ -1,15 +1,14 @@
 // makes a terrible noise
 
-var frequency = 220;
+
 var fft;
 
 var collect_bins = 1024;
-var smoothing = 0;
+var smoothing = .90;
 var show_bins = 64;
 var wave_scale = 1;
 
 
-var flowerR = 0;
 
 function preload() {
 	sound = loadSound('assets/FurElise.ogg');
@@ -34,6 +33,7 @@ function draw() {
 	noStroke();
 	fill(255);
 	for (i = 0; i < show_bins; i++) {
+		fill(spectrum[i]);
 		rect(i * 512 / show_bins, 256 - spectrum[i] * wave_scale, 5, -5);
 	}
 
@@ -53,12 +53,9 @@ function draw() {
 
 
 	// draw score
-	// for (i = 0; i < show_bins; i++) {
-	// 	fill(spectrum[i]);
-	// 	rect(frameCount / 2, 512 - i * 4, 5, 5);
-	//
-	// }
+	for (i = 0; i < show_bins; i++) {
+		fill(spectrum[i]);
+		rect(frameCount / 2, 512 - i * 4, 5, 5);
 
-
-
+	}
 }
