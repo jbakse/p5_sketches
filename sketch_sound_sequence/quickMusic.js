@@ -115,6 +115,8 @@ quickMusic.nameToMIDI = function(name, octave) {
  * @return {MonoSynth} The newly created MonoSynth
  */
 function MonoSynth() {
+
+    this.name = "MonoSynth";
     /**
      * controls the envelope of the notes
      * @type p5.Evn
@@ -173,7 +175,7 @@ MonoSynth.prototype.playNote = function(note, length, amplitude) {
             this.spacing);
     }
 
-    this.onNotePlayed(note, length, amplitude);
+    this.onNotePlayed(this, note, length, amplitude);
 };
 
 /**
@@ -196,6 +198,7 @@ MonoSynth.prototype.playNotes = function(notes) {
     }
 };
 
-MonoSynth.prototype.reportNote = function(note, length, amplitude) {
-    console.log("Note Played", note, quickMusic.midiToName(note), length);
+MonoSynth.prototype.reportNote = function(synth, note, length, amplitude) {
+    console.log("Note Played", synth.name, note, quickMusic.midiToName(note),
+        length);
 };

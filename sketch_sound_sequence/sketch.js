@@ -1,3 +1,4 @@
+//https://autochords.com/
 // https://www.khanacademy.org/humanities/music/music-basics2/notes-rhythm/v/lesson-1-note-values-duration-and-time-signatures0
 // https://sourceforge.net/projects/ariamaestosa/?source=typ_redirect
 // https://github.com/saebekassebil/teoria
@@ -6,15 +7,19 @@
 //https://jslinterrors.com/a-leading-decimal-point-can-be-confused-with-a-dot-a
 /*jshint -W008 */
 
-var synth;
+var synth, synth2;
+
+var wall = [];
 
 function setup() {
 	createCanvas(640, 360);
-
 	synth = new MonoSynth();
+	synth2 = new MonoSynth();
+	synth2.name = "BassSynth";
+
 
 	// synth.playNotes(makeSongBasic());
-	synth.playNotes(makeSongBrownian());
+	// synth.playNotes(makeSongBrownian());
 	// synth.playNotes(makeSongKeyed(quickMusic.majorScale));
 	// synth.playNotes(makeSongKeyed(quickMusic.minorScale));
 	// synth.playNotes(makeSongKeyed(quickMusic.phrygianDominateScale));
@@ -22,8 +27,13 @@ function setup() {
 	// synth.playNotes(makeSongFromPhrase(quickMusic.majorScale, london_bridge));
 	// synth.playNotes(makeSongFromPhrase(quickMusic.minorScale, london_bridge));
 	// synth.playNotes(makeSongFromPhrase(quickMusic.phrygianDominateScale, london_bridge));
-	// synth.playNotes(makeSongAdvanced());
+	synth2.playNotes(makeBaseAdvanced());
+	synth.playNotes(makeSongAdvanced());
 
+	// for (var i = 0; i < 2; i++) {
+	// 	wall[i] = new MonoSynth();
+	// 	wall[i].playNotes(makeSongAdvanced());
+	// }
 
 
 }
@@ -102,6 +112,22 @@ function sample(a) {
 	return a[floor(random(a.length))];
 }
 
+function makeBaseAdvanced() {
+	var phrase = [];
+	for (var i = 0; i < 8; i++) {
+		phrase.push(
+			[
+				sample([0 - 14, 4 - 14, 5 - 14]),
+				1
+			]
+		);
+	}
+
+	phrase[phrase.length - 1][0] = -14;
+	console.log("phrase", phrase);
+	return makeSongFromPhrase(quickMusic.majorScale, phrase);
+
+}
 
 function makeSongAdvanced() {
 
@@ -129,11 +155,8 @@ function makeSongAdvanced() {
 	);
 
 
-	console.log(introPhrase,
-		middlePhrase,
-		alternatePhrase,
-		concludingPhrase);
-	return makeSongFromPhrase(quickMusic.minorScale, fullPhrase);
+
+	return makeSongFromPhrase(quickMusic.majorScale, fullPhrase);
 
 
 }
@@ -163,6 +186,8 @@ function makePhrase() {
 	var lengthLeft = 1;
 	while (lengthLeft > 0) {
 		var length = sample([1 / 2, 1 / 4, 1 / 4, 1 / 4, 1 / 8, 1 / 8]);
+
+
 		if (length > lengthLeft) {
 			length = lengthLeft;
 		}
