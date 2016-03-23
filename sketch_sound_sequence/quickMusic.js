@@ -5,13 +5,12 @@
 //https://jslinterrors.com/a-leading-decimal-point-can-be-confused-with-a-dot-a
 /*jshint -W008 */
 
-var C3 = 48;
-
-var majorScale = [0, 2, 4, 5, 7, 9, 11];
-var minorScale = [0, 2, 3, 5, 7, 8, 10]; // Minor
-var tonic = C3;
-var activeScale = majorScale;
-var frequency = 220;
+// var C3 = 48;
+//
+//
+// var tonic = C3;
+// var activeScale = majorScale;
+// var frequency = 220;
 
 
 /**
@@ -20,9 +19,62 @@ var frequency = 220;
  */
 quickMusic = {};
 
+/**
+ * note names for an octave, starting at C
+ * @type {Array}
+ */
 quickMusic.noteNames = [
     "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
 ];
+
+/**
+ * offset from tonic for notes in the diatonic major scale
+ * @type {Array}
+ */
+quickMusic.majorScale = [0, 2, 4, 5, 7, 9, 11];
+
+/**
+ * offset from tonic for notes in the diatonic minor scale
+ * @type {Array}
+ */
+quickMusic.minorScale = [0, 2, 3, 5, 7, 8, 10];
+
+
+/**
+ * offset from tonic for notes in the phrygian dominant scale
+ * @link https://en.wikipedia.org/wiki/Phrygian_dominant_scale
+ * @type {Array}
+ */
+quickMusic.phrygianDominateScale = [0, 1, 4, 5, 7, 8, 10];
+
+/**
+ * offset from tonic for notes in the minor pentatonic scale
+ * @link https://en.wikipedia.org/wiki/Phrygian_dominant_scale
+ * @type {Array}
+ */
+quickMusic.minorPentatonicScale = [0, 3, 5, 7, 10];
+
+
+/**
+ * finds the note for a given position on a scale
+ * @param  {Number} position - the position in the scale
+ * @param  {Number} tonic - the tonic or first note in the scale
+ * @param  {Array} scale - array that defines the scale
+ * @return {Number} the resulting note number
+ */
+quickMusic.getNoteInScale = function(position, tonic, scale) {
+    if (position === "rest") {
+        return "rest";
+    }
+    var octave = floor(position / scale.length);
+    var index = position % scale.length;
+    if (index < 0) {
+        index += scale.length;
+    }
+    return tonic + (octave * 12) + scale[index];
+
+};
+
 
 /**
  * returns name for midi note value
@@ -30,7 +82,10 @@ quickMusic.noteNames = [
  * @return {string} the name of the note
  */
 quickMusic.midiToName = function(number) {
-    return quickMusic.noteNames[number % 12] + (Math.floor(number / 12) - 1);
+    var name = quickMusic.noteNames[number % 12] + (Math.floor(number / 12) -
+        1);
+    return name || "-";
+
 };
 
 /**
@@ -72,7 +127,7 @@ function MonoSynth() {
      * generates the tone of the notes
      * @type p5.Oscillator
      */
-    this.oscillator = new p5.Oscillator('sine');
+    this.oscillator = new p5.Oscillator('square');
     this.oscillator.amp(this.envelope); // set amplitude
     this.oscillator.freq(220); // set frequency
     this.oscillator.start(); // start oscillating
@@ -89,7 +144,7 @@ function MonoSynth() {
      * @type {notePlayedCalback}
      */
 
-    this.onNotePlayed = function() {};
+    this.onNotePlayed = this.reportNote;
 }
 
 
@@ -110,12 +165,13 @@ MonoSynth.prototype.playNote = function(note, length, amplitude) {
         amplitude = 1;
     }
 
-    var frequency = midiToFreq(note);
-    this.oscillator.freq(frequency);
-    this.envelope.mult(amplitude);
-
-    this.envelope.play(this.oscillator, 0, length - this.envelope.rTime -
-        this.spacing);
+    if (note !== "rest") {
+        var frequency = midiToFreq(note);
+        this.oscillator.freq(frequency);
+        this.envelope.mult(amplitude);
+        this.envelope.play(this.oscillator, 0, length - this.envelope.rTime -
+            this.spacing);
+    }
 
     this.onNotePlayed(note, length, amplitude);
 };
@@ -140,74 +196,6 @@ MonoSynth.prototype.playNotes = function(notes) {
     }
 };
 
-
-
-var london_bridge = [
-    [4, 3 / 8],
-    [5, 1 / 8],
-    [4, 1 / 4],
-    [3, 1 / 4],
-
-    [2, 1 / 4],
-    [3, 1 / 4],
-    [4, 1 / 2],
-
-    [1, 1 / 4],
-    [2, 1 / 4],
-    [3, 1 / 2],
-
-    [2, 1 / 4],
-    [3, 1 / 4],
-    [4, 1 / 2],
-
-    [4, 3 / 8],
-    [5, 1 / 8],
-    [4, 1 / 4],
-    [3, 1 / 4],
-
-    [2, 1 / 4],
-    [3, 1 / 4],
-    [4, 1 / 2],
-
-    [1, 1 / 2],
-    [4, 1 / 2],
-
-    [2, 1 / 4],
-    [0, 3 / 4]
-];
-
-var mary_had_a_little_lamb = [
-    [2, 3 / 8],
-    [1, 1 / 8],
-    [0, 1 / 4],
-    [1, 1 / 4],
-
-    [2, 1 / 4],
-    [2, 1 / 4],
-    [2, 1 / 2],
-
-    [1, 1 / 4],
-    [1, 1 / 4],
-    [1, 1 / 2],
-
-    [2, 1 / 4],
-    [4, 1 / 4],
-    [4, 1 / 2],
-
-    [2, 3 / 8],
-    [1, 1 / 8],
-    [0, 1 / 4],
-    [1, 1 / 4],
-
-    [2, 1 / 4],
-    [2, 1 / 4],
-    [2, 1 / 4],
-    [2, 1 / 4],
-
-    [1, 1 / 4],
-    [1, 1 / 4],
-    [2, 1 / 4],
-    [1, 1 / 4],
-
-    [0, 1]
-];
+MonoSynth.prototype.reportNote = function(note, length, amplitude) {
+    console.log("Note Played", note, quickMusic.midiToName(note), length);
+};

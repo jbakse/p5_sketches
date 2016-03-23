@@ -13,19 +13,84 @@ function setup() {
 
 	synth = new MonoSynth();
 
-	synth.playNotes(makeSongBasic());
+	// synth.playNotes(makeSongBasic());
+	synth.playNotes(makeSongBrownian());
+	// synth.playNotes(makeSongKeyed(quickMusic.majorScale));
+	// synth.playNotes(makeSongKeyed(quickMusic.minorScale));
+	// synth.playNotes(makeSongKeyed(quickMusic.phrygianDominateScale));
+	// synth.playNotes(makeSongKeyed(quickMusic.minorPentatonicScale));
+	// synth.playNotes(makeSongFromPhrase(quickMusic.majorScale, london_bridge));
+	// synth.playNotes(makeSongFromPhrase(quickMusic.minorScale, london_bridge));
+	// synth.playNotes(makeSongFromPhrase(quickMusic.phrygianDominateScale, london_bridge));
+	// synth.playNotes(makeSongAdvanced());
+
+
+
 }
 
 function makeSongBasic() {
 	var song = [];
+
 	for (var i = 0; i < 16; i++) {
+		var note = floor(random(48, 60));
+		if (random() < .2) {
+			note = "rest";
+		}
 		song.push([
-			random(48, 50),
+			note,
 			sample([1 / 2, 1 / 4, 1 / 4, 1 / 4])
 		]);
 	}
+
 	return song;
 }
+
+function makeSongBrownian() {
+	var song = [];
+	var note = 48;
+
+	for (var i = 0; i < 32; i++) {
+		song.push([
+			note,
+			sample([1 / 2, 1 / 4, 1 / 4, 1 / 4])
+		]);
+
+		note += sample([-2, -1, -1, 0, 1, 1, 2]);
+	}
+
+	return song;
+}
+
+function makeSongKeyed(key) {
+	var song = [];
+	var position = 0;
+
+	for (var i = 0; i < 32; i++) {
+		song.push([
+			quickMusic.getNoteInScale(position, 60 /*C5*/ , key),
+			sample([1 / 2, 1 / 4, 1 / 4, 1 / 4])
+		]);
+
+		position += sample([-1, -1, -1, 0, 1, 1, 1]);
+	}
+
+	return song;
+}
+
+function makeSongFromPhrase(key, phrase) {
+	var song = [];
+
+	for (var i = 0; i < phrase.length; i++) {
+		var position = phrase[i][0];
+		var length = phrase[i][1];
+		var note = quickMusic.getNoteInScale(position, 60 /*C5*/ , key);
+		song.push([note, length]);
+	}
+
+	return song;
+}
+
+
 
 function draw() {
 	// if (frameCount % 60 === 0) {
@@ -37,35 +102,78 @@ function sample(a) {
 	return a[floor(random(a.length))];
 }
 
-function randomSong() {
 
-	var measures = [];
+function makeSongAdvanced() {
 
-	for (var m = 0; m < 4; m++) {
-		measures[m] = [];
-		var lengthLeft = 1;
 
-		while (lengthLeft > 0) {
-			var note = Math.floor(random(7));
-			if (random() < 0.25) {
-				note = "rest";
-			}
-			var thisLength = pick([1 / 2, 1 / 2, 1 / 4, 1 / 4, 1 / 4]);
-			if (thisLength > lengthLeft) {
-				thisLength = lengthLeft;
-			}
-			measures[m].push([
-				note,
-				thisLength
-			]);
-			lengthLeft -= thisLength;
+	var fullPhrase = [];
+	var introPhrase = makePhrase();
+	var middlePhrase = makePhrase();
+	var alternatePhrase = shiftPhrase(middlePhrase, -2);
+	var concludingPhrase = clonePhrase(middlePhrase);
+	concludingPhrase[concludingPhrase.length - 1][0] = 0;
+
+	fullPhrase = fullPhrase.concat(
+		introPhrase,
+		middlePhrase,
+		alternatePhrase,
+		middlePhrase
+	);
+
+
+	fullPhrase = fullPhrase.concat(
+		introPhrase,
+		middlePhrase,
+		alternatePhrase,
+		concludingPhrase
+	);
+
+
+	console.log(introPhrase,
+		middlePhrase,
+		alternatePhrase,
+		concludingPhrase);
+	return makeSongFromPhrase(quickMusic.minorScale, fullPhrase);
+
+
+}
+
+function shiftPhrase(phrase, amount) {
+	var copy = clonePhrase(phrase);
+	for (var i = 0; i < copy.length; i++) {
+		if (copy[i][0] !== "rest") {
+			copy[i][0] += amount;
 		}
 	}
+	return copy;
+}
 
-	var song = [];
-	for (m = 0; m < 8; m++) {
-		song = song.concat(pick(measures));
+function clonePhrase(phrase) {
+	var clone = [];
+	for (var i = 0; i < phrase.length; i++) {
+		clone.push(phrase[i].slice(0));
+	}
+	return clone;
+}
+
+function makePhrase() {
+	var phrase = [];
+
+	var position = floor(random(7));
+	var lengthLeft = 1;
+	while (lengthLeft > 0) {
+		var length = sample([1 / 2, 1 / 4, 1 / 4, 1 / 4, 1 / 8, 1 / 8]);
+		if (length > lengthLeft) {
+			length = lengthLeft;
+		}
+		position += sample([-2, -1, -1, -1, 0, 1, 1, 1, 2]);
+		if (random() < .2) {
+			phrase.push(["rest", length]);
+		} else {
+			phrase.push([position, length]);
+		}
+		lengthLeft -= length;
 	}
 
-	return song;
+	return phrase;
 }
