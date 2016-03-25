@@ -4852,6 +4852,7 @@
                         now);
                     this.oscillator.frequency.setValueAtTime(
                         val, tFromNow + now);
+                    console.log("jcb");
                 } else {
                     if (val > 0) {
                         this.oscillator.frequency.exponentialRampToValueAtTime(
@@ -6967,8 +6968,7 @@
             if (p5sound.inputSources.length > 0) {
                 return p5sound.inputSources;
             } else {
-                return
-                    'This browser does not support MediaStreamTrack.getSources()';
+                return 'This browser does not support MediaStreamTrack.getSources()';
             }
         };
         /**
