@@ -4852,7 +4852,6 @@
                         now);
                     this.oscillator.frequency.setValueAtTime(
                         val, tFromNow + now);
-                    console.log("jcb");
                 } else {
                     if (val > 0) {
                         this.oscillator.frequency.exponentialRampToValueAtTime(

@@ -89,18 +89,7 @@ function makeSongKeyed(key) {
     return song;
 }
 
-function makeSongFromPhrase(key, phrase) {
-    var song = [];
 
-    for (var i = 0; i < phrase.length; i++) {
-        var position = phrase[i][0];
-        var length = phrase[i][1];
-        var note = quickMusic.getNoteInScale(position, 60 /*C5*/ , key);
-        song.push([note, length]);
-    }
-
-    return song;
-}
 
 
 
@@ -136,7 +125,7 @@ function makeBaseAdvanced() {
     }
 
     phrase[phrase.length - 1][0] = -7;
-    console.log("phrase", phrase);
+    // console.log("phrase", phrase);
     return makeSongFromPhrase(quickMusic.phrygianDominateScale, phrase);
 
 }
@@ -173,23 +162,7 @@ function makeSongAdvanced() {
 
 }
 
-function shiftPhrase(phrase, amount) {
-    var copy = clonePhrase(phrase);
-    for (var i = 0; i < copy.length; i++) {
-        if (copy[i][0] !== "rest") {
-            copy[i][0] += amount;
-        }
-    }
-    return copy;
-}
 
-function clonePhrase(phrase) {
-    var clone = [];
-    for (var i = 0; i < phrase.length; i++) {
-        clone.push(phrase[i].slice(0));
-    }
-    return clone;
-}
 
 function makePhrase() {
     var phrase = [];

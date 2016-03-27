@@ -3,6 +3,12 @@
  * @constructor
  * @return {MonoSynth} The newly created MonoSynth
  */
+
+ // configure jshint linter
+ //https://jslinterrors.com/a-leading-decimal-point-can-be-confused-with-a-dot-a
+ /*jshint -W008 */
+
+
 function MonoSynth() {
     /**
      * name of the synth, useful for reporting/debugging
@@ -51,7 +57,7 @@ function MonoSynth() {
  * plays a note
  * @param  {number} note - midi pitch value - middle C is 60
  * @param  {number} length - length of note in seconds
- * @param  {number} amplitude - loudness of the note - 0 to 1
+ * @param  {number} time - time in seconds from now to start note
  */
 MonoSynth.prototype.playNote = function(note, length, time) {
     var now = getAudioContext().currentTime;
@@ -65,24 +71,25 @@ MonoSynth.prototype.playNote = function(note, length, time) {
 
     if (note !== "rest") {
         //schedule the pitch change
+
         var frequency = midiToFreq(note);
-        this.oscillator.oscillator.frequency
-            .setValueAtTime(frequency, now + time);
+        this.oscillator.oscillator.frequency.setValueAtTime(frequency, now + time);
 
         //schedule the attack envelope
         var sustainLength = length - this.spacing;
+        this.envelope.mult(this.amplitude);
         this.envelope.play(this.oscillator, time, sustainLength);
     }
 
     var self = this;
     setTimeout(function() {
-        self.onNotePlayed(this, note, length);
+        self.onNotePlayed(self, note, length, time);
     }, time * 1000);
 };
 
 /**
  * plays a series of notes in sequence
- * @param  {Array.Array} notes - An array of note descriptions [note, length, amplitude]
+ * @param  {Array.Array} notes - An array of note descriptions [note, length]
  */
 MonoSynth.prototype.playNotes = function(notes) {
     var time = 0;
@@ -93,8 +100,6 @@ MonoSynth.prototype.playNotes = function(notes) {
     }
 };
 
-MonoSynth.prototype.reportNote = function(synth, note, length, amplitude) {
-    console.log("Note Played!", synth.name, note, quickMusic.midiToName(
-            note),
-        length);
+MonoSynth.prototype.reportNote = function(synth, note, length) {
+    console.log("Note Played!", synth.name, note, quickMusic.midiToName(note), length);
 };
