@@ -15,7 +15,7 @@
 
 
 /**
- * Main quickMusic namespace.
+ * Main quickMusic namespace!
  * @namespace
  */
 quickMusic = {};
