@@ -1,12 +1,12 @@
-/**
+/*
  * Basic Monophonic Synthesizer
- * @constructor
- * @return {MonoSynth} The newly created MonoSynth
+ * !@constructor
+ * !@return {MonoSynth} The newly created MonoSynth
  */
 
- // configure jshint linter
- //https://jslinterrors.com/a-leading-decimal-point-can-be-confused-with-a-dot-a
- /*jshint -W008 */
+// configure jshint linter
+//https://jslinterrors.com/a-leading-decimal-point-can-be-confused-with-a-dot-a
+/*jshint -W008 */
 
 
 function MonoSynth() {
@@ -73,7 +73,8 @@ MonoSynth.prototype.playNote = function(note, length, time) {
         //schedule the pitch change
 
         var frequency = midiToFreq(note);
-        this.oscillator.oscillator.frequency.setValueAtTime(frequency, now + time);
+        this.oscillator.oscillator.frequency.setValueAtTime(frequency, now +
+            time);
 
         //schedule the attack envelope
         var sustainLength = length - this.spacing;
@@ -101,5 +102,6 @@ MonoSynth.prototype.playNotes = function(notes) {
 };
 
 MonoSynth.prototype.reportNote = function(synth, note, length) {
-    console.log("Note Played!", synth.name, note, quickMusic.midiToName(note), length);
+    console.log("Note Played!", synth.name, note, quickMusic.midiToName(
+        note), length);
 };
