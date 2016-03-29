@@ -1,12 +1,14 @@
-/*
+// configure jshint linter
+//https://jslinterrors.com/a-leading-decimal-point-can-be-confused-with-a-dot-a
+/*jshint -W008 */
+
+
+/**
  * Basic Monophonic Synthesizer
  * !@constructor
  * !@return {MonoSynth} The newly created MonoSynth
  */
 
-// configure jshint linter
-//https://jslinterrors.com/a-leading-decimal-point-can-be-confused-with-a-dot-a
-/*jshint -W008 */
 
 
 function MonoSynth() {

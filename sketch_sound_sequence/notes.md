@@ -1,3 +1,11 @@
+https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
+https://autochords.com/
+https://www.khanacademy.org/humanities/music/music-basics2/notes-rhythm/v/lesson-1-note-values-duration-and-time-signatures0
+https://sourceforge.net/projects/ariamaestosa/?source=typ_redirect
+https://github.com/saebekassebil/teoria
+http://www.ocenaudio.com/
+https://en.wikipedia.org/wiki/Scale_(music)
+https://en.wikipedia.org/wiki/Degree_(music)
 
 
 # Music Theory
