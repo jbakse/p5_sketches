@@ -8,6 +8,10 @@ https://en.wikipedia.org/wiki/Scale_(music)
 https://en.wikipedia.org/wiki/Degree_(music)
 
 
+# Cutural Subjectivity
+- Design as Science
+- Design as Art
+
 # Music Theory
 
 I don't have a great deal of knowledge around music theory, so it is possible that some of the following may be incorrect. Still, these are the assumptions I used in creating the examples we will study this week.
