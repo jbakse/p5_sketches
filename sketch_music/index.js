@@ -10,8 +10,4 @@
 // QuickMusic + MonoSynth Examples
 // - [sketch_quickmusic.html](sketch_quickmusic.html)
 // - [sketch_organized.html](sketch_organized.html)
-// - [sketch_advanced.html](sketch_advanced.html)
 // - [sketch_kitchen.html](sketch_kitchen.html)
-//
-//
-// data.html

@@ -5,9 +5,10 @@
 
 /**
  * Basic Monophonic Synthesizer
- * @constructor
- * @return {MonoSynth} The newly created MonoSynth
+ * !@constructor
+ * !@return {MonoSynth} The newly created MonoSynth
  */
+
 
 
 function MonoSynth() {

@@ -1,22 +1,10 @@
-// http://www.html5rocks.com/en/tutorials/audio/scheduling/
-//https://newt.phys.unsw.edu.au/jw/notes.html
-// http://jeremywentworth.com/webkitSynth/#
-
 // configure jshint linter
-//https://jslinterrors.com/a-leading-decimal-point-can-be-confused-with-a-dot-a
+// https://jslinterrors.com/a-leading-decimal-point-can-be-confused-with-a-dot-a
 /*jshint -W008 */
 
-// var C3 = 48;
-//
-//
-// var tonic = C3;
-// var activeScale = majorScale;
-// var frequency = 220;
-
-
 /*
- * Main quickMusic namespace!!
- * !namespace
+ * Main quickMusic namespace
+ * @namespace
  */
 quickMusic = {};
 
@@ -28,33 +16,16 @@ quickMusic.noteNames = [
     "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
 ];
 
-
+/**
+ * Collection of important musical scales. Each scale is represented
+ * as an array of values. Each value is the number of half-step offsets
+ * from the tonic to a note in the scale. The scales cover one octave.
+ * @type {Array}
+ */
 quickMusic.scales = {};
-/**
- * offset from tonic for notes in the diatonic major scale
- * @type {Array}
- */
 quickMusic.scales.major = [0, 2, 4, 5, 7, 9, 11];
-
-/**
- * offset from tonic for notes in the diatonic minor scale
- * @type {Array}
- */
 quickMusic.scales.minor = [0, 2, 3, 5, 7, 8, 10];
-
-
-/**
- * offset from tonic for notes in the phrygian dominant scale
- * @link https://en.wikipedia.org/wiki/Phrygian_dominant_scale
- * @type {Array}
- */
 quickMusic.scales.phrygianDominate = [0, 1, 4, 5, 7, 8, 10];
-
-/**
- * offset from tonic for notes in the minor pentatonic scale
- * @link https://en.wikipedia.org/wiki/Phrygian_dominant_scale
- * @type {Array}
- */
 quickMusic.scales.minorPentatonic = [0, 3, 5, 7, 10];
 
 
@@ -110,22 +81,30 @@ quickMusic.nameToMIDI = function(name, octave) {
     return (octave + 1) * 12 + index;
 };
 
-
-
+/**
+ * turns a scale-position based phrase into a midi-note-number based phrase
+ * @param  {scale-position phrase} phrase the phrase to impose
+ * @param  {[type]} tonic  the tonic of the key to impose to
+ * @param  {[type]} scale  the scale of the key to impose to
+ * @return {note-number phrase}        the imposed phrase
+ */
 quickMusic.imposePhrase = function(phrase, tonic, scale) {
     var copy = quickMusic.clonePhrase(phrase);
-    // console.log(tonic);
     for (var i = 0; i < copy.length; i++) {
         if (copy[i][0] !== "rest") {
             copy[i][0] = quickMusic.getNoteInScale(copy[i][0], tonic, scale);
         }
     }
-
     return copy;
 };
 
 
-
+/**
+ * creates a copy of the given phrase and then raises/lowers the pitch values the given amount
+ * @param  {phrase} phrase phrase to shift
+ * @param  {Number} amount amount to shift
+ * @return {phrase}        shifted copy
+ */
 quickMusic.shiftPhrase = function(phrase, amount) {
     var copy = quickMusic.clonePhrase(phrase);
     for (var i = 0; i < copy.length; i++) {
@@ -136,6 +115,11 @@ quickMusic.shiftPhrase = function(phrase, amount) {
     return copy;
 };
 
+/**
+ * makes a copy of a phrase
+ * @param  {phrase} phrase
+ * @return {phrase}
+ */
 quickMusic.clonePhrase = function(phrase) {
     var clone = [];
     for (var i = 0; i < phrase.length; i++) {
