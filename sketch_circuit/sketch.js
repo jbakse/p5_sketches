@@ -64,7 +64,7 @@ function draw() {
 		// stop animating
 		noLoop();
 		// wait a bit and start over
-		setTimeout(init, 1000);
+		setTimeout(init, 10000);
 	}
 }
 
@@ -75,4 +75,8 @@ function allWormsDead() {
 		}
 	}
 	return true;
+}
+
+function mousePressed() {
+	save();
 }

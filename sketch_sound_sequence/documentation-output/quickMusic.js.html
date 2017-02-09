@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Computational Form Music Source: quickMusic.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.flatly.css">
+
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top navbar-inverse">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">Computational Form Music</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="quickMusic.html">quickMusic</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="MonoSynth.html">MonoSynth</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: quickMusic.js</h1>
+    
+<section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">// http://www.html5rocks.com/en/tutorials/audio/scheduling/
+//https://newt.phys.unsw.edu.au/jw/notes.html
+// http://jeremywentworth.com/webkitSynth/#
+
+// configure jshint linter
+//https://jslinterrors.com/a-leading-decimal-point-can-be-confused-with-a-dot-a
+/*jshint -W008 */
+
+// var C3 = 48;
+//
+//
+// var tonic = C3;
+// var activeScale = majorScale;
+// var frequency = 220;
+
+
+/**
+ * Main quickMusic namespace!
+ * @namespace
+ */
+quickMusic = {};
+
+/**
+ * note names for an octave, starting at C
+ * @type {Array}
+ */
+quickMusic.noteNames = [
+  "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+];
+
+
+quickMusic.scales = {};
+/**
+ * offset from tonic for notes in the diatonic major scale
+ * @type {Array}
+ */
+quickMusic.scales.major = [0, 2, 4, 5, 7, 9, 11];
+
+/**
+ * offset from tonic for notes in the diatonic minor scale
+ * @type {Array}
+ */
+quickMusic.scales.minor = [0, 2, 3, 5, 7, 8, 10];
+
+
+/**
+ * offset from tonic for notes in the phrygian dominant scale
+ * @link https://en.wikipedia.org/wiki/Phrygian_dominant_scale
+ * @type {Array}
+ */
+quickMusic.scales.phrygianDominate = [0, 1, 4, 5, 7, 8, 10];
+
+/**
+ * offset from tonic for notes in the minor pentatonic scale
+ * @link https://en.wikipedia.org/wiki/Phrygian_dominant_scale
+ * @type {Array}
+ */
+quickMusic.scales.minorPentatonic = [0, 3, 5, 7, 10];
+
+
+/**
+ * finds the note for a given position on a scale
+ * @param  {Number} position - the position in the scale
+ * @param  {Number} tonic - the tonic or first note in the scale
+ * @param  {Array} scale - array that defines the scale
+ * @return {Number} the resulting note number
+ */
+quickMusic.getNoteInScale = function (position, tonic, scale) {
+  if (position === "rest") {
+    return "rest";
+  }
+  var octave = floor(position / scale.length);
+  var index = position % scale.length;
+  if (index &lt; 0) {
+    index += scale.length;
+  }
+
+  return tonic + (octave * 12) + scale[index];
+
+};
+
+
+/**
+ * returns name for midi note value
+ * @param  {Number} number midi note value
+ * @return {string} the name of the note
+ */
+quickMusic.midiToName = function (number) {
+  var name = quickMusic.noteNames[number % 12] + (Math.floor(number / 12) -
+    1);
+  return name || "-";
+};
+
+/**
+ * returns midi note number for the named note and Octave
+ * @param  {string} name - name of the note (e.g. "C", "C#")
+ * @param  {Number} [octave=4] - number of the octave
+ * @return {Number} midi number for the note
+ */
+quickMusic.nameToMIDI = function (name, octave) {
+  if (octave === undefined) {
+    octave = 4;
+  }
+
+  var index = quickMusic.noteNames.indexOf(name);
+  if (index === -1) {
+    return false;
+  }
+  // console.log("midi", name, octave, (octave + 1) * 12 + index);
+  return (octave + 1) * 12 + index;
+};
+
+
+
+quickMusic.imposePhrase = function (phrase, tonic, scale) {
+  var copy = quickMusic.clonePhrase(phrase);
+  // console.log(tonic);
+  for (var i = 0; i &lt; copy.length; i++) {
+    if (copy[i][0] !== "rest") {
+      copy[i][0] = quickMusic.getNoteInScale(copy[i][0], tonic, scale);
+    }
+  }
+
+  return copy;
+};
+
+
+
+quickMusic.shiftPhrase = function (phrase, amount) {
+  var copy = quickMusic.clonePhrase(phrase);
+  for (var i = 0; i &lt; copy.length; i++) {
+    if (copy[i][0] !== "rest") {
+      copy[i][0] += amount;
+    }
+  }
+  return copy;
+};
+
+quickMusic.clonePhrase = function (phrase) {
+  var clone = [];
+  for (var i = 0; i &lt; phrase.length; i++) {
+    clone.push(phrase[i].slice(0));
+  }
+  return clone;
+};
+</pre>
+	</article>
+</section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a>
+		on 2016-03-27T18:46:31-04:00 using the <a
+			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<!--<script src="scripts/sunlight.js"></script>-->
+	<script src="scripts/docstrap.lib.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+	<script>
+		$( function () {
+			$( "[id*='$']" ).each( function () {
+				var $this = $( this );
+
+				$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+			} );
+
+			$( "#toc" ).toc( {
+				anchorName  : function ( i, heading, prefix ) {
+					return $( heading ).attr( "id" ) || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : "100px"
+			} );
+
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+			$( '.dropdown-toggle' ).dropdown();
+//			$( ".tutorial-section pre, .readme-section pre" ).addClass( "sunlight-highlight-javascript" ).addClass( "linenums" );
+
+			$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+				var $this = $( this );
+
+				var example = $this.find( "code" );
+				exampleText = example.html();
+				var lang = /{@lang (.*?)}/.exec( exampleText );
+				if ( lang && lang[1] ) {
+					exampleText = exampleText.replace( lang[0], "" );
+					example.html( exampleText );
+					lang = lang[1];
+				} else {
+					lang = "javascript";
+				}
+
+				if ( lang ) {
+
+					$this
+						.addClass( "sunlight-highlight-" + lang )
+						.addClass( "linenums" )
+						.html( example.html() );
+
+				}
+			} );
+
+			Sunlight.highlightAll( {
+				lineNumbers : true,
+				showMenu : true,
+				enableDoclinks : true
+			} );
+		} );
+	 </script>
+
+
+
+	<!--Navigation and Symbol Display-->
+	
+	<script>
+		$( function () {
+			$( '#main' ).localScroll( {
+				offset : { top : 60 } //offset by the height of your header (give or take a few px, see what works for you)
+			} );
+			$( "dt.name" ).each( function () {
+				var $this = $( this ).find("h4");
+				var icon = $( "<i/>" ).addClass( "icon-plus-sign" ).addClass( "pull-right" ).addClass( "icon-white" );
+				var dt = $(this);
+				var children = dt.next( "dd" );
+
+				dt.prepend( icon ).css( {cursor : "pointer"} );
+				dt.addClass( "member-collapsed" ).addClass( "member" );
+
+
+				children.hide();
+
+				dt.children().on( "click", function () {
+					children = dt.next( "dd" );
+					console.debug(dt, children)
+					children.slideToggle( "fast", function () {
+
+						if ( children.is( ":visible" ) ) {
+							icon.addClass( "icon-minus-sign" ).removeClass( "icon-plus-sign" ).removeClass( "icon-white" );
+							dt.addClass( "member-open" ).animate( "member-collapsed" );
+						} else {
+							icon.addClass( "icon-plus-sign" ).removeClass( "icon-minus-sign" ).addClass( "icon-white" );
+							dt.addClass( "member-collapsed" ).removeClass( "member-open" );
+						}
+					} );
+				} );
+
+			} );
+		} );
+	</script>
+	
+
+
+	<!--Google Analytics-->
+	
+
+</body>
+</html>

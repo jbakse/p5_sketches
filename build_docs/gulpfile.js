@@ -2,7 +2,7 @@ var gulp = require("gulp");
 var docco = require("gulp-docco");
 
 
-var src = "../sketch_sound_sequence/**/*.js";
+var src = "../sketch_music/**/*.js";
 
 // var template = {
 //     path: "ink-docstrap",
